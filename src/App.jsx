@@ -1,12 +1,14 @@
 import Header from './components/layout/Header'
+import Footer from './components/layout/Footer'
 
 function App() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <div className="p-8 text-texto-secundario">
+      <main className="flex-1 p-8 text-texto-secundario">
         Conteúdo da página vem aqui...
-      </div>
+      </main>
+      <Footer />
     </div>
   )
 }
