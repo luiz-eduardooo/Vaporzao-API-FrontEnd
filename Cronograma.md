@@ -10,12 +10,12 @@ Cronograma de entregas do projeto, conforme definido pelo professor.
 
 ### Desenvolvimento
 
-- ⬜ Estruturação de pastas
-- ⬜ Conexão de API
-- ⬜ Componentização — cards de "lançamentos recentes", "mais bem avaliados"
+- ✅ Estruturação de pastas
+- ✅ Conexão de API
+- ✅ Componentização — cards de "lançamentos recentes", "mais bem avaliados"
   e "populares na comunidade"
-- ⬜ Desenvolvimento do cabeçalho com botões *(sem redirecionamento)*
-- ⬜ Desenvolvimento do rodapé *(links sem redirecionamento)*
+- ✅ Desenvolvimento do cabeçalho com botões *(sem redirecionamento)*
+- ✅ Desenvolvimento do rodapé *(links sem redirecionamento)*
 
 ---
 
@@ -23,11 +23,11 @@ Cronograma de entregas do projeto, conforme definido pelo professor.
 
 ### Desenvolvimento II
 
-- ⬜ Barra de pesquisa e ícones (carrinho, perfil e notificações) ¹
-- ⬜ Filtros — navegar por gênero
-- ⬜ Página para adicionar/criar jogo
-- ⬜ Criar base de dados, com imagens
-- ⬜ Carrossel dos jogos em destaque
+- 🔄 Barra de pesquisa e ícones (carrinho, perfil e notificações) ¹
+- 🔄 Filtros — navegar por gênero
+- 🔄 Página para adicionar/criar jogo
+- 🔄 Criar base de dados, com imagens
+- 🔄 Carrossel dos jogos em destaque
 
 ---
 
