@@ -1,0 +1,17 @@
+// Autoplay
+  useEffect(() => {
+    if (games.length <= 1) return
+    autoplayRef.current = setInterval(() => {
+      setCurrent((i) => (i + 1) % games.length)
+    }, interval)
+    return () => clearInterval(autoplayRef.current)
+  }, [games.length, interval])
+
+  const resetAutoplay = () => {
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current)
+      autoplayRef.current = setInterval(() => {
+        setCurrent((i) => (i + 1) % games.length)
+      }, interval)
+    }
+  }
