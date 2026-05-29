@@ -1,0 +1,34 @@
+import { useEffect, useRef, useState } from 'react'
+import { getJogosDestaques } from '../../services/jogosService'
+
+
+export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
+  const [games, setGames] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [current, setCurrent] = useState(0)
+  const autoplayRef = useRef(null)
+
+  // Busca dos jogos
+  useEffect(() => {
+    let cancelled = false
+    async function fetchGames() {
+      try {
+        setLoading(true)
+        const data = await getJogosDestaques(limit)
+        if (!cancelled) {
+          setGames(data)
+          setError(null)
+        }
+      } catch (err) {
+        console.error('[FeaturedCarousel] erro ao buscar jogos:', err)
+        if (!cancelled) setError('Não foi possível carregar os destaques.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    fetchGames()
+    return () => {
+      cancelled = true
+    }
+  }, [limit])
