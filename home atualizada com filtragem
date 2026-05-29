@@ -1,0 +1,103 @@
+import { useState, useMemo } from 'react'
+import FeaturedCarousel from '../components/game/FeaturedCarousel'
+import GameSection from '../components/game/GameSection'
+import GeneroFiltro from '../components/game/GeneroFiltro'
+import JogosPorGenero from '../components/game/JogosPorGenero'
+import { useDestaques } from '../hooks/useDestaques'
+import { useTodosJogos } from '../hooks/useTodosJogos'
+import { extrairGeneros, filtrarPorGenero } from '../utils/classificarJogos'
+
+export default function Home() {
+  const { destaques, carregando, erro } = useDestaques()
+  const { jogos: todosJogos, carregando: carregandoTodos } = useTodosJogos()
+
+  // Filtro de gênero (null = "Todos").
+  const [generoSel, setGeneroSel] = useState(null)
+
+  // Gêneros disponíveis, extraídos dos próprios jogos (batem com as tags dos cards).
+  const generos = useMemo(() => extrairGeneros(todosJogos), [todosJogos])
+
+  // Filtragem LOCAL — sem chamada extra à API.
+  const jogosFiltrados = useMemo(
+    () => filtrarPorGenero(todosJogos, generoSel),
+    [todosJogos, generoSel]
+  )
+
+  return (
+    <main className="min-h-screen bg-[#0B0014] text-[#F2EAFF]">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+        {/* Carrossel só na visão "Todos" */}
+        {generoSel == null && (
+          <FeaturedCarousel limit={5} interval={5000} />
+        )}
+
+        <div className="mt-10">
+          {generos.length > 0 ? (
+            <GeneroFiltro
+              generos={generos}
+              selecionado={generoSel}
+              onSelecionar={setGeneroSel}
+            />
+          ) : (
+            !carregandoTodos && (
+              <p className="px-8 text-sm text-texto-secundario">
+                Nenhum gênero encontrado nos jogos carregados
+                {' '}({todosJogos.length} jogos).
+              </p>
+            )
+          )}
+        </div>
+
+        {generoSel != null ? (
+          /* ---- Um gênero específico selecionado (filtro local) ---- */
+          <>
+            {carregandoTodos && (
+              <p className="text-center text-texto-secundario py-20">
+                Carregando jogos...
+              </p>
+            )}
+            {!carregandoTodos && jogosFiltrados.length > 0 && (
+              <GameSection titulo="Resultados" jogos={jogosFiltrados} />
+            )}
+            {!carregandoTodos && jogosFiltrados.length === 0 && (
+              <p className="text-center text-texto-secundario py-20">
+                Nenhum jogo encontrado neste gênero.
+              </p>
+            )}
+          </>
+        ) : (
+          /* ---- "Todos": destaques + catálogo agrupado por gênero ---- */
+          <>
+            {carregando && (
+              <p className="text-center text-texto-secundario py-20">
+                Carregando jogos...
+              </p>
+            )}
+            {erro && <p className="text-center text-erro py-20">{erro}</p>}
+
+            {destaques && (
+              <>
+                <GameSection titulo="🆕 Lançamentos recentes" jogos={destaques.recentes} />
+                <GameSection titulo="⭐ Mais bem avaliados" jogos={destaques.topAvaliados} />
+                <GameSection titulo="🔥 Populares na comunidade" jogos={destaques.populares} />
+              </>
+            )}
+
+            <div className="mt-6">
+              <h2 className="font-display font-bold text-xl text-texto-primario mb-2 px-8">
+                📂 Catálogo por gênero
+              </h2>
+              {carregandoTodos ? (
+                <p className="text-center text-texto-secundario py-10">
+                  Organizando o catálogo...
+                </p>
+              ) : (
+                <JogosPorGenero jogos={todosJogos} />
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </main>
+  )
+}
