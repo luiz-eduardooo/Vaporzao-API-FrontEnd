@@ -1,0 +1,18 @@
+fetch('https://alunos-ads-api-production.up.railway.app/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ matricula: 'ADMIN', senha: 'admin123' })
+})
+  .then(r => r.json())
+  .then(d => {
+    console.log('resposta do login:', d)
+    const token = d.token || d.jwt || d.access_token || d.accessToken
+    if (token) {
+      localStorage.setItem('vaporzao_token', token)
+      console.log('✅ token salvo! Recarregue a página.')
+    } else {
+      console.log('⚠️ token não encontrado:', d)
+    }
+  })
+
+  - CONSOLE
