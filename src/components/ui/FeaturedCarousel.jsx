@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getJogosDestaques } from '../../services/jogosService'
 
-
 export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
   const [games, setGames] = useState([])
   const [loading, setLoading] = useState(true)
@@ -31,9 +30,44 @@ export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
     return () => {
       cancelled = true
     }
-  }, [limit])}
+  }, [limit])
 
-   if (loading) {
+  // Autoplay  (era o arquivo solto "AutoPlay para o carrossel")
+  useEffect(() => {
+    if (games.length <= 1) return
+    autoplayRef.current = setInterval(() => {
+      setCurrent((i) => (i + 1) % games.length)
+    }, interval)
+    return () => clearInterval(autoplayRef.current)
+  }, [games.length, interval])
+
+  const resetAutoplay = () => {
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current)
+      autoplayRef.current = setInterval(() => {
+        setCurrent((i) => (i + 1) % games.length)
+      }, interval)
+    }
+  }
+
+  // Navegação + pausa  (era o arquivo solto "Reset e pausa do carrossel")
+  const goTo = (index) => {
+    setCurrent(((index % games.length) + games.length) % games.length)
+    resetAutoplay()
+  }
+  const next = () => goTo(current + 1)
+  const prev = () => goTo(current - 1)
+
+  const pause = () => clearInterval(autoplayRef.current)
+  const resume = () => {
+    if (games.length > 1) {
+      autoplayRef.current = setInterval(() => {
+        setCurrent((i) => (i + 1) % games.length)
+      }, interval)
+    }
+  }
+
+  if (loading) {
     return (
       <div className="w-full h-[420px] rounded-2xl bg-[#150826] border border-white/5 animate-pulse" />
     )
@@ -53,7 +87,8 @@ export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
     )
   }
 
-  <section
+  return (
+    <section
       className="w-full"
       onMouseEnter={pause}
       onMouseLeave={resume}
@@ -119,3 +154,74 @@ export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
         )}
       </div>
     </section>
+  )
+}
+
+// Subcomponente do carrossel  (era o arquivo solto "Slide do carrossel")
+function Slide({ game, active }) {
+  const title = game.titulo ?? game.title ?? game.name ?? 'Sem título'
+  const desc =
+    game.description ?? game.descricao ?? game.shortDescription ?? ''
+  const image =
+    game.capaUrl ?? game.image ?? game.imagem ?? game.cover ?? game.banner ?? game.thumbnail
+  const genre =
+    game.generos?.[0]?.nome ?? game.genre ?? game.genero ?? game.category
+  const rating = game.mediaNotas ?? game.rating ?? game.avaliacao ?? game.score ?? game.nota
+  const price = game.preco ?? game.price
+
+  return (
+    <div
+      className="min-w-full relative h-[380px] md:h-[460px] overflow-hidden"
+      aria-hidden={!active}
+    >
+      {/* Imagem de fundo */}
+      {image ? (
+        <img
+          src={image}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-[#B026FF] via-[#1F0F38] to-[#0B0014]" />
+      )}
+
+      {/* Overlay escuro pra legibilidade */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0B0014] via-[#0B0014]/80 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0014] via-transparent to-transparent" />
+
+      {/* Conteúdo */}
+      <div className="relative z-[1] flex h-full flex-col justify-end p-6 md:p-12 max-w-2xl">
+        {genre && (
+          <span className="inline-block self-start mb-3 px-3 py-1 text-xs font-bold tracking-widest uppercase text-[#F2EAFF] bg-[#B026FF]/30 border border-[#B026FF] rounded">
+            {genre}
+          </span>
+        )}
+        <h3 className="font-['Space_Grotesk'] text-3xl md:text-5xl font-bold text-[#F2EAFF] mb-3 drop-shadow-[0_2px_20px_rgba(0,0,0,0.8)]">
+          {title}
+        </h3>
+        {desc && (
+          <p className="text-sm md:text-base text-[#F2EAFF]/80 mb-5 line-clamp-2 max-w-xl">
+            {desc}
+          </p>
+        )}
+        <div className="flex flex-wrap items-center gap-4">
+          <button className="px-6 py-3 bg-[#B026FF] hover:bg-[#9FFF3D] hover:text-[#0B0014] text-[#F2EAFF] font-bold text-sm tracking-wider uppercase rounded transition-all hover:shadow-[0_0_25px_rgba(159,255,61,0.5)]">
+            Ver detalhes
+          </button>
+          {price !== undefined && (
+            <span className="text-2xl font-bold text-[#9FFF3D]">
+              {typeof price === 'number'
+                ? `R$ ${price.toFixed(2).replace('.', ',')}`
+                : price}
+            </span>
+          )}
+          {rating !== undefined && (
+            <span className="text-sm text-[#F2EAFF]/70">
+              ★ <span className="text-[#F2EAFF] font-semibold">{rating}</span>
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

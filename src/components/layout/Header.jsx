@@ -1,13 +1,21 @@
 import { useState } from 'react'
 import Logo from './Logo'
 import NavButton from '../ui/NavButton'
+import SearchBar from '../ui/SearchBar'
+import IconButton from '../ui/IconButton'
+import UserChip from '../ui/UserChip'
 
-
-function Header() {
-
+function Header({ onBuscar = () => {} }) {
   const [ativo, setAtivo] = useState('Loja')
 
   const itens = ['Loja', 'Biblioteca', 'Wishlist']
+
+  // ⚠️ Mock temporário. Trocar pelos dados reais do usuário quando a tela
+  // de login/autenticação estiver pronta (entrega final).
+  const usuario = { nome: 'Visitante', iniciais: 'V', saldo: 0, matricula: '—' }
+
+  const emBreve = (recurso) => () =>
+    alert(`${recurso}: em breve! (ainda não implementado)`)
 
   return (
     <header
@@ -28,6 +36,15 @@ function Header() {
           </NavButton>
         ))}
       </nav>
+
+      <SearchBar onBuscar={onBuscar} />
+
+      <div className="flex items-center gap-1 ml-auto">
+        {/* Ícones decorativos (sem endpoint na API) — exibem aviso ao clicar */}
+        <IconButton icone="carrinho" rotulo="Carrinho" onClick={emBreve('Carrinho')} />
+        <IconButton icone="sino" rotulo="Notificações" onClick={emBreve('Notificações')} badge={0} />
+        <UserChip usuario={usuario} />
+      </div>
     </header>
   )
 }
