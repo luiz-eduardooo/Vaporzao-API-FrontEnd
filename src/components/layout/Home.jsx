@@ -11,7 +11,6 @@ export default function Home() {
   const { destaques, carregando, erro } = useDestaques()
   const { jogos: todosJogos, carregando: carregandoTodos } = useTodosJogos()
 
-  // Filtro de gênero (null = "Todos").
   const [generoSel, setGeneroSel] = useState(null)
 
   // Gêneros disponíveis, extraídos dos próprios jogos (batem com as tags dos cards).

@@ -1,4 +1,59 @@
-<section
+import { useEffect, useRef, useState } from 'react'
+import { getJogosDestaques } from '../../services/jogosService'
+
+
+export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
+  const [games, setGames] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [current, setCurrent] = useState(0)
+  const autoplayRef = useRef(null)
+
+  // Busca dos jogos
+  useEffect(() => {
+    let cancelled = false
+    async function fetchGames() {
+      try {
+        setLoading(true)
+        const data = await getJogosDestaques(limit)
+        if (!cancelled) {
+          setGames(data)
+          setError(null)
+        }
+      } catch (err) {
+        console.error('[FeaturedCarousel] erro ao buscar jogos:', err)
+        if (!cancelled) setError('Não foi possível carregar os destaques.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    fetchGames()
+    return () => {
+      cancelled = true
+    }
+  }, [limit])}
+
+   if (loading) {
+    return (
+      <div className="w-full h-[420px] rounded-2xl bg-[#150826] border border-white/5 animate-pulse" />
+    )
+  }
+  if (error) {
+    return (
+      <div className="w-full p-8 rounded-2xl bg-[#150826] border border-[#FF3D6E]/30 text-[#FF3D6E] text-center">
+        {error}
+      </div>
+    )
+  }
+  if (games.length === 0) {
+    return (
+      <div className="w-full p-8 rounded-2xl bg-[#150826] border border-white/5 text-[#9B8FB0] text-center">
+        Nenhum jogo em destaque no momento.
+      </div>
+    )
+  }
+
+  <section
       className="w-full"
       onMouseEnter={pause}
       onMouseLeave={resume}
