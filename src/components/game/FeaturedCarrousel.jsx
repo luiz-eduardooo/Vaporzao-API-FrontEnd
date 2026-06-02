@@ -8,7 +8,7 @@ import { getJogosDestaques } from '../../services/jogosService'
  *   - limit:    quantos jogos buscar (default 5)
  *   - interval: tempo do autoplay em ms (default 5000)
  */
-export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
+export function FeaturedCarousel({ limit = 5, interval = 5000 }) {
   const [games, setGames] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
