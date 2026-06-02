@@ -1,37 +1,42 @@
+import { useState } from 'react'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
-import GameSection from './components/game/GameSection'
-import FeaturedCarousel from './components/ui/FeaturedCarousel'
-import { useDestaques } from './hooks/useDestaques'
+import Home from './pages/Home'
+import CriarJogo from './pages/CriarJogo'
+import ResultadoBusca from './pages/ResultadoBusca'
 
 function App() {
-  const { destaques, carregando, erro } = useDestaques()
+  const [view, setView] = useState('loja')
+  const [recarga, setRecarga] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  function aoCriar() {
+    setRecarga((n) => n + 1)
+    setView('loja')
+  }
+
+  function buscar(query) {
+    setSearchQuery(query)
+    setView('busca')
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header
+        onIrParaLoja={() => setView('loja')}
+        onIrParaCriar={() => setView('criar')}
+        onBuscar={buscar}
+      />
 
-      <main className="flex-1 py-8">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 mb-10">
-          <FeaturedCarousel limit={5} interval={5000} />
-        </div>
-
-        {carregando && (
-          <p className="text-center text-texto-secundario py-20">
-            Carregando jogos...
-          </p>
+      <div className="flex-1">
+        {view === 'criar' ? (
+          <CriarJogo onCriado={aoCriar} />
+        ) : view === 'busca' ? (
+          <ResultadoBusca query={searchQuery} />
+        ) : (
+          <Home key={recarga} />
         )}
-
-        {erro && <p className="text-center text-erro py-20">{erro}</p>}
-
-        {destaques && (
-          <>
-            <GameSection titulo="🆕 Lançamentos recentes" jogos={destaques.recentes} />
-            <GameSection titulo="⭐ Mais bem avaliados" jogos={destaques.topAvaliados} />
-            <GameSection titulo="🔥 Populares na comunidade" jogos={destaques.populares} />
-          </>
-        )}
-      </main>
+      </div>
 
       <Footer />
     </div>
