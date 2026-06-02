@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { criarJogo } from '../services/jogosService'
-import { useGeneros } from '../hooks/useGeneros'
+import { useGeneros } from '../hooks/UseGeneros'
 
 const ESTADO_INICIAL = { titulo: '', descricao: '', desenvolvedora: '', preco: '', capaUrl: '', lancamento: '', generosIds: [] }
 

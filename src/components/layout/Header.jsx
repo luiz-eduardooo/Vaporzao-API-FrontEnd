@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Logo from './Logo'
 import NavButton from '../ui/NavButton'
 import SearchBar from '../ui/SearchBar'
-import IconButton from '../ui/iconButton'
+import IconButton from '../ui/IconButton'
 import UserChip from '../ui/UserChip'
 
 const USUARIO = { nome: 'João Silva', iniciais: 'JS', saldo: 142.30, matricula: '2024001' }

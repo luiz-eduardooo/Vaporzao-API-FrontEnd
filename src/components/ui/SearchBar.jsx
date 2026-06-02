@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Icon from './icon'
+import Icon from './Icon'
 
 function SearchBar({ onBuscar = () => {} }) {
   const [valor, setValor] = useState('')

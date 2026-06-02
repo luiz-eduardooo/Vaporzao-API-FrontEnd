@@ -5,7 +5,7 @@ const CORES_BADGE = {
   'verde-acido': 'bg-verde-acido text-fundo-primario',
 }
 
-function IconButton({ icone, rotulo, onClick, badge, corBadge = 'roxo-neon' }) {
+export function IconButton({ icone, rotulo, onClick, badge, corBadge = 'roxo-neon' }) {
   return (
     <button
       onClick={onClick}

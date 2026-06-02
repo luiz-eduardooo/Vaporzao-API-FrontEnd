@@ -58,7 +58,7 @@ function desenho(nome) {
   }
 }
 
-function Icon({ nome, className = 'w-4 h-4' }) {
+export function Icon({ nome, className = 'w-4 h-4' }) {
   const conteudo = desenho(nome)
   if (!conteudo) return null
 
