@@ -7,8 +7,8 @@ import ResultadoBusca from './pages/ResultadoBusca'
 import DetalheJogo from './pages/DetalheJogo'
 import Perfil from './pages/Perfil'
 import Biblioteca from './pages/Biblioteca'
-import Wishlist from './pages/Wishlist'
-import MeusJogos from './pages/MeusJogos'
+import Wishlist from './pages/WishList'
+import MeusJ
 import Login from './pages/Login'
 import { useAuth } from './context/authShared'
 
