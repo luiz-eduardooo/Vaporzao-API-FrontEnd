@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { criarJogo } from '../services/jogosService'
-import { useGeneros } from '../hooks/UseGeneros'
+import { useGeneros } from '../hooks/useGeneros'
 
 const ESTADO_INICIAL = { titulo: '', descricao: '', desenvolvedora: '', preco: '', capaUrl: '', lancamento: '', generosIds: [] }
 
@@ -83,7 +83,7 @@ export default function CriarJogo({ onCriado }) {
       const dados = err?.response?.data
       const status = err?.response?.status
       const msg = dados?.erro ?? dados?.message ?? dados?.error ?? (typeof dados === 'string' ? dados : null)
-      setErro(status === 401 || status === 403 ? msg ?? 'Você precisa estar logado.' : msg ? `Erro: ${msg}` : `Erro ${status ?? '?'}. Veja o Console.`)
+      setErro(status === 401 || status === 403 ? msg ?? 'Sessão expirada ou não autenticado. Faça login novamente para publicar.' : msg ? `Erro: ${msg}` : `Erro ${status ?? '?'}. Veja o Console.`)
     } finally {
       setEnviando(false)
     }

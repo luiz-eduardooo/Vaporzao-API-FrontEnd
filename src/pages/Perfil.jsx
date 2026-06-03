@@ -1,14 +1,9 @@
-const USUARIO = {
-  nome: 'João Silva',
-  iniciais: 'JS',
-  saldo: 142.30,
-  matricula: '2024001',
-}
+import { useAuth } from '../context/authShared'
 
-function Avatar() {
+function Avatar({ iniciais }) {
   return (
     <div className="w-24 h-24 rounded-full bg-gradient-to-br from-fundo-terciario to-roxo-neon grid place-items-center text-white text-3xl font-display font-bold shadow-[0_0_30px_rgba(176,38,255,0.4)]">
-      {USUARIO.iniciais}
+      {iniciais}
     </div>
   )
 }
@@ -23,7 +18,20 @@ function InfoCard({ label, valor }) {
 }
 
 export default function Perfil() {
-  const saldo = USUARIO.saldo.toFixed(2).replace('.', ',')
+  const { usuario, logado } = useAuth()
+
+  if (!logado || !usuario) {
+    return (
+      <main className="min-h-screen bg-[#0B0014] text-[#F2EAFF]">
+        <div className="max-w-2xl mx-auto px-8 py-20 text-center">
+          <p className="text-texto-secundario text-lg">Você não está logado.</p>
+          <p className="text-texto-secundario text-sm mt-1">Entre com sua matrícula para ver seu perfil.</p>
+        </div>
+      </main>
+    )
+  }
+
+  const saldo = Number(usuario.saldo ?? 0).toFixed(2).replace('.', ',')
 
   return (
     <main className="min-h-screen bg-[#0B0014] text-[#F2EAFF]">
@@ -32,16 +40,16 @@ export default function Perfil() {
         <h1 className="font-display text-3xl font-bold text-texto-primario mb-8">Perfil</h1>
 
         <div className="flex items-center gap-6 mb-10">
-          <Avatar />
+          <Avatar iniciais={usuario.iniciais} />
           <div>
-            <h2 className="font-display text-2xl font-bold text-texto-primario">{USUARIO.nome}</h2>
-            <p className="text-texto-secundario text-sm mt-1">Matrícula {USUARIO.matricula}</p>
+            <h2 className="font-display text-2xl font-bold text-texto-primario">{usuario.nome}</h2>
+            <p className="text-texto-secundario text-sm mt-1">Matrícula {usuario.matricula}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <InfoCard label="Nome" valor={USUARIO.nome} />
-          <InfoCard label="Matrícula" valor={USUARIO.matricula} />
+          <InfoCard label="Nome" valor={usuario.nome} />
+          <InfoCard label="Matrícula" valor={usuario.matricula} />
           <InfoCard label="Saldo" valor={`R$ ${saldo}`} />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { FeaturedCarousel } from '../components/game/FeaturedCarrousel'
+import FeaturedCarousel from '../components/game/FeaturedCarrousel'
 import GameSection from '../components/game/GameSection'
 import GeneroFiltro from '../components/game/GeneroFiltro'
 import JogosPorGenero from '../components/game/JogosPorGenero'

@@ -71,3 +71,63 @@ export async function getBiblioteca() {
   }
   return []
 }
+
+/* ───────────────────────── MEUS JOGOS ───────────────────────── */
+
+// Extrai o "dono" de um jogo, aceitando os formatos de campo mais comuns.
+// Pode ser um id, uma matrícula, ou um objeto { id, matricula, nome }.
+function donoDoJogo(jogo) {
+  const bruto =
+    jogo.autor ?? jogo.criador ?? jogo.usuario ?? jogo.dono ??
+    jogo.usuarioId ?? jogo.autorId ?? jogo.criadoPor ?? jogo.criadorId ?? null
+  if (bruto == null) return null
+  if (typeof bruto === 'object') {
+    return bruto.id ?? bruto.matricula ?? bruto.nome ?? null
+  }
+  return bruto
+}
+
+// Busca os jogos publicados pelo usuário logado.
+// 1º) tenta rotas dedicadas (mais confiável, já filtradas pelo backend);
+// 2º) se não houver, baixa o catálogo e filtra pelo dono, comparando com a
+//     identidade informada (id ou matrícula do usuário logado).
+// ⚠️ AJUSTE a rota / o nome do campo de autor conforme a sua API.
+export async function getMeusJogos(identidadeUsuario) {
+  const rotas = ['/jogos/meus', '/meus-jogos', '/usuarios/me/jogos', '/me/jogos']
+  for (const rota of rotas) {
+    try {
+      const { data } = await api.get(rota)
+      const lista = Array.isArray(data) ? data : data?.itens ?? data?.jogos
+      if (Array.isArray(lista)) return lista
+    } catch {
+      // tenta a próxima rota
+    }
+  }
+
+  // Fallback: baixa todas as páginas do catálogo e filtra pelo dono.
+  try {
+    const LIMITE = 50
+    const primeira = await getJogos({ pagina: 1, limite: LIMITE })
+    let todos = Array.isArray(primeira)
+      ? primeira
+      : primeira?.itens ?? primeira?.jogos ?? []
+    const totalPaginas = Array.isArray(primeira) ? 1 : primeira?.paginas ?? 1
+    if (totalPaginas > 1) {
+      const resto = await Promise.all(
+        Array.from({ length: totalPaginas - 1 }, (_, i) =>
+          getJogos({ pagina: i + 2, limite: LIMITE })
+        )
+      )
+      resto.forEach((r) => { todos = todos.concat(r?.itens ?? r?.jogos ?? []) })
+    }
+
+    if (identidadeUsuario == null) return []
+    const alvo = String(identidadeUsuario)
+    return todos.filter((j) => {
+      const dono = donoDoJogo(j)
+      return dono != null && String(dono) === alvo
+    })
+  } catch {
+    return []
+  }
+}
