@@ -29,9 +29,11 @@ jogos.
 
 - **[Vite](https://vitejs.dev/)** — build tool e dev server
 - **[React](https://react.dev/)** — biblioteca de UI (JavaScript)
-- **[React Router](https://reactrouter.com/)** — roteamento entre páginas
 - **[Tailwind CSS](https://tailwindcss.com/)** — estilização
 - **[Axios](https://axios-http.com/)** — requisições HTTP à API
+
+> A navegação entre telas é feita por estado interno do `App` (sem
+> React Router), o que é suficiente para o escopo do projeto.
 
 ---
 
@@ -68,7 +70,6 @@ vaporzao-frontend/
 │   ├── context/            # Estado global (auth, biblioteca, wishlist)
 │   ├── hooks/              # Custom hooks
 │   ├── utils/              # Funções auxiliares
-│   ├── routes/             # Configuração de rotas
 │   ├── App.jsx
 │   └── main.jsx
 ├── .env.example            # Exemplo de variáveis de ambiente
@@ -126,8 +127,9 @@ O projeto consome a **Vaporzão API**. A URL base é configurada via variável
 de ambiente `VITE_API_URL` no arquivo `.env`.
 
 A autenticação é feita por **matrícula + senha** (`POST /auth/login`), e o
-token JWT retornado deve ser enviado no header `token` das requisições
-autenticadas.
+token retornado deve ser enviado no header `token` das requisições
+autenticadas. No primeiro login, o aluno usa `POST /auth/primeiro-acesso`
+para definir a senha.
 
 ---
 

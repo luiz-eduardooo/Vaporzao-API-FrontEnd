@@ -23,11 +23,11 @@ Cronograma de entregas do projeto, conforme definido pelo professor.
 
 ### Desenvolvimento II
 
-- 🔄 Barra de pesquisa e ícones (carrinho, perfil e notificações) ¹
-- 🔄 Filtros — navegar por gênero
-- 🔄 Página para adicionar/criar jogo
-- 🔄 Criar base de dados, com imagens
-- 🔄 Carrossel dos jogos em destaque
+- ✅ Barra de pesquisa e ícones (carrinho, perfil e notificações) ¹
+- ✅ Filtros — navegar por gênero
+- ✅ Página para adicionar/criar jogo
+- ✅ Criar base de dados, com imagens
+- ✅ Carrossel dos jogos em destaque
 
 ---
 
@@ -35,12 +35,12 @@ Cronograma de entregas do projeto, conforme definido pelo professor.
 
 ### Desenvolvimento III
 
-- ⬜ Tela da biblioteca
-- ⬜ Tela da wishlist
-- ⬜ Pesquisa funcionando
-- ⬜ Botão de perfil funcionando
-- ⬜ Ao clicar no card, abrir tela de detalhes
-- ⬜ Tela da criação de jogos
+- ✅ Tela da biblioteca
+- ✅ Tela da wishlist
+- ✅ Pesquisa funcionando
+- ✅ Botão de perfil funcionando
+- ✅ Ao clicar no card, abrir tela de detalhes
+- ✅ Tela da criação de jogos
 
 ---
 
@@ -48,9 +48,11 @@ Cronograma de entregas do projeto, conforme definido pelo professor.
 
 ### Desenvolvimento final
 
-- ⬜ Tela de login e cadastro
-- ⬜ Refinamento em detalhes visuais
-- ⬜ Explicação de uso de IA
+- ✅ Tela de login e cadastro *(login real via API — matrícula + senha e primeiro acesso)*
+- ✅ Refinamento em detalhes visuais
+- ✅ Explicação de uso de IA *(ver `USO_DE_IA.md`)*
+- ✅ CRUD completo de jogos *(criar, editar e excluir em "Meus Jogos")*
+- ✅ Reviews da comunidade e conquistas na página do jogo
 
 ---
 
