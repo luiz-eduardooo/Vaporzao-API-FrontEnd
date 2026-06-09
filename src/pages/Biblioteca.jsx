@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { getBiblioteca } from '../services/jogosService'
 import GameCover from '../components/game/GameCover'
+import { idDoJogo } from '../utils/classificarJogos'
+import { useBiblioteca } from '../context/bibliotecaShared'
 
 function formatarHoras(jogo) {
   const h = jogo.horasJogadas ?? jogo.horas ?? jogo.tempoJogado
@@ -14,7 +14,7 @@ function ItemBiblioteca({ jogo, onAbrir }) {
   const horas = formatarHoras(jogo)
   return (
     <article
-      onClick={() => onAbrir?.(jogo.id)}
+      onClick={() => onAbrir?.(idDoJogo(jogo))}
       className="group flex gap-4 p-3 rounded-lg bg-fundo-secundario border border-borda cursor-pointer transition-all duration-200 hover:border-roxo-neon"
     >
       <div className="w-[80px] aspect-2/3 shrink-0 rounded-md overflow-hidden">
@@ -35,19 +35,7 @@ function ItemBiblioteca({ jogo, onAbrir }) {
 }
 
 export default function Biblioteca({ onAbrirJogo }) {
-  const [jogos, setJogos] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
-
-  useEffect(() => {
-    let cancelado = false
-    setCarregando(true)
-    getBiblioteca()
-      .then((lista) => { if (!cancelado) { setJogos(lista); setErro(null) } })
-      .catch(() => { if (!cancelado) setErro('Não foi possível carregar sua biblioteca.') })
-      .finally(() => { if (!cancelado) setCarregando(false) })
-    return () => { cancelado = true }
-  }, [])
+  const { itens: jogos } = useBiblioteca()
 
   return (
     <main className="min-h-screen bg-[#0B0014] text-[#F2EAFF]">
@@ -55,17 +43,14 @@ export default function Biblioteca({ onAbrirJogo }) {
         <span className="block text-xs font-bold tracking-[0.3em] text-roxo-neon mb-1">// MINHA CONTA</span>
         <h1 className="font-display text-2xl font-bold text-texto-primario mb-6">Biblioteca</h1>
 
-        {carregando && <p className="text-center text-texto-secundario py-20">Carregando sua biblioteca...</p>}
-        {erro && <p className="text-center text-erro py-20">{erro}</p>}
-
-        {!carregando && !erro && jogos.length === 0 && (
+        {jogos.length === 0 && (
           <div className="text-center py-20">
             <p className="text-texto-secundario text-lg">Sua biblioteca está vazia.</p>
-            <p className="text-texto-secundario text-sm mt-1">Os jogos que você adquirir aparecerão aqui.</p>
+            <p className="text-texto-secundario text-sm mt-1">Os jogos que você adicionar aparecerão aqui.</p>
           </div>
         )}
 
-        {!carregando && !erro && jogos.length > 0 && (
+        {jogos.length > 0 && (
           <>
             <p className="text-texto-secundario text-sm mb-6">
               {jogos.length} jogo{jogos.length !== 1 ? 's' : ''} na biblioteca

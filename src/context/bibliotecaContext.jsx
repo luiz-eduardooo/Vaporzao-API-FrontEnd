@@ -1,31 +1,29 @@
 import { useEffect, useState, useCallback } from 'react'
-import { WishlistContext } from './wishlistShared'
+import { BibliotecaContext } from './bibliotecaShared'
 import { useAuth } from './authShared'
 import {
-  getWishlist,
-  adicionarNaWishlist,
-  removerDaWishlist,
+  getBiblioteca,
+  adicionarNaBiblioteca,
+  removerDaBiblioteca,
 } from '../services/jogosService'
 
 /**
- * WishlistProvider — lista de desejos do usuário, sincronizada com a API
- * (/wishlist/me, POST/DELETE /wishlist/:jogoId).
+ * BibliotecaProvider — jogos que o usuário possui, sincronizados com a API
+ * (/biblioteca/me, POST/DELETE /biblioteca/:jogoId).
  *
- * Mantém o objeto do jogo em estado para renderizar os cards sem refazer
- * requisições. A UI é otimista: atualiza na hora e desfaz se a API falhar.
- * Sem usuário logado, a wishlist fica vazia (exige login para persistir).
+ * Mesma estratégia da wishlist: carrega ao logar e usa UI otimista
+ * (atualiza na hora, desfaz se a API falhar). Sem login, fica vazia.
  */
-export function WishlistProvider({ children }) {
+export function BibliotecaProvider({ children }) {
   const { logado } = useAuth()
   const [itens, setItens] = useState([])
 
-  // Carrega/limpa a wishlist conforme o login.
   useEffect(() => {
     let cancelado = false
     async function sincronizar() {
       if (!logado) { setItens([]); return }
       try {
-        const lista = await getWishlist()
+        const lista = await getBiblioteca()
         if (!cancelado) setItens(lista)
       } catch {
         if (!cancelado) setItens([])
@@ -35,15 +33,16 @@ export function WishlistProvider({ children }) {
     return () => { cancelado = true }
   }, [logado])
 
-  const naWishlist = useCallback((id) => itens.some((j) => j.id === id), [itens])
+  const naBiblioteca = useCallback((id) => itens.some((j) => j.id === id), [itens])
 
   const adicionar = useCallback(async (jogo) => {
     if (!jogo?.id) return
     setItens((atual) => (atual.some((j) => j.id === jogo.id) ? atual : [...atual, jogo]))
     try {
-      await adicionarNaWishlist(jogo.id)
-    } catch {
+      await adicionarNaBiblioteca(jogo.id)
+    } catch (err) {
       setItens((atual) => atual.filter((j) => j.id !== jogo.id)) // desfaz
+      throw err
     }
   }, [])
 
@@ -51,26 +50,20 @@ export function WishlistProvider({ children }) {
     const anterior = itens
     setItens((atual) => atual.filter((j) => j.id !== id))
     try {
-      await removerDaWishlist(id)
-    } catch {
+      await removerDaBiblioteca(id)
+    } catch (err) {
       setItens(anterior) // desfaz
+      throw err
     }
   }, [itens])
-
-  const alternar = useCallback((jogo) => {
-    if (!jogo?.id) return
-    if (itens.some((j) => j.id === jogo.id)) remover(jogo.id)
-    else adicionar(jogo)
-  }, [itens, adicionar, remover])
 
   const valor = {
     itens,
     quantidade: itens.length,
-    naWishlist,
+    naBiblioteca,
     adicionar,
     remover,
-    alternar,
   }
 
-  return <WishlistContext.Provider value={valor}>{children}</WishlistContext.Provider>
+  return <BibliotecaContext.Provider value={valor}>{children}</BibliotecaContext.Provider>
 }

@@ -26,17 +26,24 @@ export default function ResultadoBusca({ query, onAbrirJogo }) {
   useEffect(() => {
     if (!query) return
     let cancelado = false
-    setCarregando(true); setJogos([]); setErro(null)
 
-    buscarTodos()
-      .then((todos) => {
+    async function executarBusca() {
+      setCarregando(true)
+      setJogos([])
+      setErro(null)
+      try {
+        const todos = await buscarTodos()
         const filtrados = todos.filter((j) =>
           j.titulo?.toLowerCase().includes(query.toLowerCase())
         )
         if (!cancelado) setJogos(filtrados)
-      })
-      .catch(() => { if (!cancelado) setErro('Não foi possível realizar a busca.') })
-      .finally(() => { if (!cancelado) setCarregando(false) })
+      } catch {
+        if (!cancelado) setErro('Não foi possível realizar a busca.')
+      } finally {
+        if (!cancelado) setCarregando(false)
+      }
+    }
+    executarBusca()
 
     return () => { cancelado = true }
   }, [query])
