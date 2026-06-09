@@ -54,8 +54,8 @@ function Header({
       <SearchBar onBuscar={onBuscar} />
 
       <div className="flex items-center gap-1.5 ml-auto">
-        <IconButton icone="sino" rotulo="Notificações" badge={3} corBadge="roxo-neon" onClick={() => {}} />
-        <IconButton icone="carrinho" rotulo="Carrinho" badge={2} corBadge="verde-acido" onClick={() => {}} />
+        <IconButton icone="sino" rotulo="Notificações (em breve)" onClick={() => alert('Notificações chegam em breve! 🔔')} />
+        <IconButton icone="carrinho" rotulo="Carrinho (em breve)" onClick={() => alert('O carrinho de compras chega em breve! 🛒')} />
 
         {logado ? (
           <UserChip

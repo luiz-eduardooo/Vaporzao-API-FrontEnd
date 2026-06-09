@@ -54,7 +54,7 @@ export function useTodosJogos() {
     }
 
     async function buscar() {
-      let lista = []
+      let lista
       try {
         lista = await buscarTodasPaginas()
       } catch {

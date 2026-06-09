@@ -5,9 +5,7 @@ function SearchBar({ onBuscar = () => {} }) {
   const [valor, setValor] = useState('')
 
   function aoPressionarTecla(e) {
-    console.log('tecla:', e.key, 'valor:', valor)
     if (e.key === 'Enter' && valor.trim()) {
-      console.log('chamando onBuscar com:', valor.trim())
       onBuscar(valor.trim())
       e.target.blur()
     }

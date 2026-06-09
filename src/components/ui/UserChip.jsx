@@ -1,6 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
 import Icon from './Icon'
 
+function Avatar({ iniciais = 'U', size = 30 }) {
+  return (
+    <span
+      style={{ width: size, height: size }}
+      className="relative grid place-items-center rounded-full bg-gradient-to-br from-fundo-terciario to-roxo-neon text-white text-[11px] font-display font-bold shrink-0"
+    >
+      {iniciais}
+    </span>
+  )
+}
+
 function UserChip({
   usuario = { nome: 'Usuário', iniciais: 'U', saldo: 0, matricula: '—' },
   wishlistCount = 0,
@@ -24,15 +35,6 @@ function UserChip({
 
   const fechar = (fn) => () => { setAberto(false); fn() }
 
-  const Avatar = ({ size = 30 }) => (
-    <span
-      style={{ width: size, height: size }}
-      className="relative grid place-items-center rounded-full bg-gradient-to-br from-fundo-terciario to-roxo-neon text-white text-[11px] font-display font-bold shrink-0"
-    >
-      {usuario.iniciais}
-    </span>
-  )
-
   return (
     <div ref={ref} className="relative">
       <button
@@ -40,7 +42,7 @@ function UserChip({
         className="inline-flex items-center gap-2.5 pl-1.5 pr-3.5 py-1 bg-fundo-secundario border border-borda rounded-full cursor-pointer transition-all duration-150 hover:bg-fundo-terciario hover:border-roxo-neon/40 whitespace-nowrap"
       >
         <div className="relative">
-          <Avatar />
+          <Avatar iniciais={usuario.iniciais} />
           <span className="absolute -right-px -bottom-px w-2.5 h-2.5 rounded-full bg-verde-acido ring-2 ring-fundo-secundario" />
         </div>
         <span className="flex flex-col items-start leading-none">
@@ -52,7 +54,7 @@ function UserChip({
       {aberto && (
         <div className="absolute right-0 top-[calc(100%+8px)] z-50 min-w-[240px] bg-fundo-secundario border border-borda rounded-lg p-2 shadow-[0_20px_48px_-16px_rgba(0,0,0,0.6)]">
           <div className="flex items-center gap-2.5 px-2.5 pt-2.5 pb-3 border-b border-borda mb-1.5">
-            <Avatar />
+            <Avatar iniciais={usuario.iniciais} />
             <div>
               <div className="text-sm font-display font-semibold text-texto-primario leading-none">{usuario.nome}</div>
               <div className="text-[10px] font-mono text-texto-secundario mt-1 uppercase tracking-widest">matrícula {usuario.matricula}</div>
