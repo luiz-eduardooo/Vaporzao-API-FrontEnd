@@ -50,7 +50,7 @@ export default function Home({ onAbrirJogo }) {
   return (
     <main className="min-h-screen bg-[#0B0014] text-[#F2EAFF]">
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
-        {generoSel == null && <FeaturedCarousel limit={5} interval={5000} />}
+        {generoSel == null && <FeaturedCarousel limit={5} interval={5000} onAbrirJogo={onAbrirJogo} />}
 
         <div className="mt-10">
           <FiltroGenero jogos={todosJogos} selecionado={generoSel} onSelecionar={setGeneroSel} carregando={carregandoTodos} />

@@ -93,3 +93,32 @@ export function filtrarPorGenero(jogos = [], generoId) {
       )
   )
 }
+
+/**
+ * Retorna o identificador de um jogo, tolerando variações de nome de campo
+ * que a API possa usar (id, _id, gameId, jogoId). Usado para navegar até a
+ * página de detalhes a partir dos cards.
+ */
+export function idDoJogo(jogo) {
+  return jogo?.id ?? jogo?._id ?? jogo?.gameId ?? jogo?.jogoId ?? null
+}
+
+/**
+ * Quantidade de reviews de um jogo, tolerando os formatos da API
+ * (_count.reviews na listagem/detalhe, contagens.reviews nos destaques).
+ */
+export function totalReviews(jogo) {
+  return jogo?._count?.reviews ?? jogo?.contagens?.reviews ?? null
+}
+
+/**
+ * Média das notas (0–10) a partir das reviews embutidas no detalhe do jogo.
+ * Retorna null se não houver reviews. A API não envia uma média pronta.
+ */
+export function mediaDasReviews(jogo) {
+  const revs = Array.isArray(jogo?.reviews) ? jogo.reviews : null
+  if (!revs || revs.length === 0) return null
+  const notas = revs.map((r) => Number(r.nota)).filter((n) => !Number.isNaN(n))
+  if (notas.length === 0) return null
+  return notas.reduce((a, b) => a + b, 0) / notas.length
+}

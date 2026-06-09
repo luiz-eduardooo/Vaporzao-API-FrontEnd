@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getJogosDestaques } from '../../services/jogosService'
+import { idDoJogo } from '../../utils/classificarJogos'
 
 /**
  * FeaturedCarousel — exibe os N jogos mais bem avaliados como hero/banner.
@@ -8,7 +9,7 @@ import { getJogosDestaques } from '../../services/jogosService'
  *   - limit:    quantos jogos buscar (default 5)
  *   - interval: tempo do autoplay em ms (default 5000)
  */
-export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
+export default function FeaturedCarousel({ limit = 5, interval = 5000, onAbrirJogo }) {
   const [games, setGames] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -120,7 +121,7 @@ export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
           {games.map((game, i) => (
-            <Slide key={game.id ?? i} game={game} active={i === current} />
+            <Slide key={game.id ?? i} game={game} active={i === current} onAbrir={onAbrirJogo} />
           ))}
         </div>
 
@@ -166,7 +167,7 @@ export default function FeaturedCarousel({ limit = 5, interval = 5000 }) {
 }
 
 /* ---------------- Slide individual ---------------- */
-function Slide({ game, active }) {
+function Slide({ game, active, onAbrir }) {
   const title = game.titulo ?? game.title ?? game.name ?? 'Sem título'
   const desc =
     game.description ?? game.descricao ?? game.shortDescription ?? ''
@@ -174,7 +175,7 @@ function Slide({ game, active }) {
     game.capaUrl ?? game.image ?? game.imagem ?? game.cover ?? game.banner ?? game.thumbnail
   const genre =
     game.generos?.[0]?.nome ?? game.genre ?? game.genero ?? game.category
-  const rating = game.mediaNotas ?? game.rating ?? game.avaliacao ?? game.score ?? game.nota
+  const nReviews = game.contagens?.reviews ?? game._count?.reviews ?? null
   const price = game.preco ?? game.price
 
   return (
@@ -213,7 +214,9 @@ function Slide({ game, active }) {
           </p>
         )}
         <div className="flex flex-wrap items-center gap-4">
-          <button className="px-6 py-3 bg-[#B026FF] hover:bg-[#9FFF3D] hover:text-[#0B0014] text-[#F2EAFF] font-bold text-sm tracking-wider uppercase rounded transition-all hover:shadow-[0_0_25px_rgba(159,255,61,0.5)]">
+          <button
+            onClick={() => onAbrir?.(idDoJogo(game))}
+            className="px-6 py-3 bg-[#B026FF] hover:bg-[#9FFF3D] hover:text-[#0B0014] text-[#F2EAFF] font-bold text-sm tracking-wider uppercase rounded transition-all hover:shadow-[0_0_25px_rgba(159,255,61,0.5)] cursor-pointer">
             Ver detalhes
           </button>
           {price !== undefined && (
@@ -223,9 +226,9 @@ function Slide({ game, active }) {
                 : price}
             </span>
           )}
-          {rating !== undefined && (
+          {nReviews != null && nReviews > 0 && (
             <span className="text-sm text-[#F2EAFF]/70">
-              ★ <span className="text-[#F2EAFF] font-semibold">{rating}</span>
+              ★ <span className="text-[#F2EAFF] font-semibold">{nReviews}</span> reviews
             </span>
           )}
         </div>

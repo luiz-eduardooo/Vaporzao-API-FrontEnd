@@ -1,4 +1,5 @@
 import GameCover from './GameCover'
+import { totalReviews } from '../../utils/classificarJogos'
 
 const Generos = ({ generos = [] }) => (
   <div className="flex flex-wrap gap-1 min-h-[20px]">
@@ -11,8 +12,9 @@ const Generos = ({ generos = [] }) => (
 )
 
 function GameCard({ jogo, onClick }) {
-  const { titulo, capaUrl, preco, desenvolvedora, generos, mediaNotas } = jogo
+  const { titulo, capaUrl, preco, desenvolvedora, generos } = jogo
   const precoFormatado = preco === 0 ? 'Grátis' : `R$ ${Number(preco).toFixed(2).replace('.', ',')}`
+  const nReviews = totalReviews(jogo)
 
   return (
     <article
@@ -21,9 +23,9 @@ function GameCard({ jogo, onClick }) {
     >
       <div className="relative w-full aspect-2/3 overflow-hidden">
         <GameCover url={capaUrl} titulo={titulo} />
-        {mediaNotas != null && (
+        {nReviews != null && nReviews > 0 && (
           <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-fundo-primario/85 border border-verde-acido font-display font-bold text-xs text-verde-acido">
-            {mediaNotas.toFixed(1)}
+            {nReviews} ★
           </span>
         )}
       </div>
