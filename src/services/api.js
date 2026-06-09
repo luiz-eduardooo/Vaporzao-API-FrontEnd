@@ -1,30 +1,27 @@
 import axios from 'axios'
 
+// URL base da API. Usa VITE_API_URL do .env; se não houver, cai no
+// servidor local padrão (a Vaporzão API roda em http://localhost:3000).
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
   },
 })
 
-// Procura o token salvo, aceitando as chaves mais comuns.
-// ⚠️ Se o seu login salva com OUTRO nome, adicione-o aqui.
+// Lê o token salvo pelo authService.
 function lerToken() {
-  const chaves = ['vaporzao_token', 'token', 'authToken', 'jwt', 'access_token']
-  for (const k of chaves) {
-    const v = localStorage.getItem(k)
-    if (v) return v
-  }
-  return null
+  return localStorage.getItem('vaporzao_token')
 }
 
 api.interceptors.request.use((config) => {
   const token = lerToken()
   if (token) {
-    // Manda nos dois formatos — a API usa o que reconhecer e ignora o outro.
+    // A Vaporzão API espera o token no header `token`.
     config.headers.token = token
-    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })

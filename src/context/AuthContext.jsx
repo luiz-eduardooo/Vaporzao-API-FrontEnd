@@ -18,12 +18,18 @@ export function AuthProvider({ children }) {
     return u
   }, [])
 
+  const primeiroAcesso = useCallback(async (credenciais) => {
+    const u = await authService.primeiroAcesso(credenciais)
+    setUsuario(u)
+    return u
+  }, [])
+
   const sair = useCallback(() => {
     authService.logout()
     setUsuario(null)
   }, [])
 
-  const valor = { usuario, logado, entrar, sair }
+  const valor = { usuario, logado, entrar, primeiroAcesso, sair }
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>
 }
