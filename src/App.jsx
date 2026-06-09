@@ -19,11 +19,13 @@ function App() {
   const [recarga, setRecarga] = useState(0)
   const [jogoId, setJogoId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [jogoParaEditar, setJogoParaEditar] = useState(null)
 
   const ir = (v) => setView(v)
   const abrirJogo = (id) => { setJogoId(id); ir('detalhe') }
   const buscar = (q) => { setSearchQuery(q); ir('busca') }
-  const aoCriar = () => { setRecarga((n) => n + 1); ir('meus-jogos') }
+  const aoCriar = () => { setJogoParaEditar(null); setRecarga((n) => n + 1); ir('meus-jogos') }
+  const editarJogo = (jogo) => { setJogoParaEditar(jogo); ir('editar') }
 
   // Exige login: se logado, vai para a view; senão, manda para o login.
   const irProtegido = (v) => ir(logado ? v : 'login')
@@ -33,13 +35,14 @@ function App() {
 
   const views = {
     loja:         <Home key={recarga} onAbrirJogo={abrirJogo} />,
-    criar:        <CriarJogo onCriado={aoCriar} />,
+    criar:        <CriarJogo onCriado={aoCriar} onCancelar={() => irProtegido('meus-jogos')} />,
+    editar:       <CriarJogo jogoParaEditar={jogoParaEditar} onCriado={aoCriar} onCancelar={() => ir('meus-jogos')} />,
     busca:        <ResultadoBusca query={searchQuery} onAbrirJogo={abrirJogo} />,
     detalhe:      <DetalheJogo jogoId={jogoId} onVoltar={() => ir('loja')} />,
     perfil:       <Perfil />,
     biblioteca:   <Biblioteca onAbrirJogo={abrirJogo} />,
     wishlist:     <Wishlist onAbrirJogo={abrirJogo} />,
-    'meus-jogos': <MeusJogos key={recarga} usuario={usuario} onAbrirJogo={abrirJogo} onPublicar={() => irProtegido('criar')} />,
+    'meus-jogos': <MeusJogos key={recarga} usuario={usuario} onAbrirJogo={abrirJogo} onPublicar={() => irProtegido('criar')} onEditarJogo={editarJogo} />,
     login:        <Login onLogado={aoLogar} />,
   }
 

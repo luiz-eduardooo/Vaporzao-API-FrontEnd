@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { criarJogo } from '../services/jogosService'
+import { criarJogo, atualizarJogo } from '../services/jogosService'
 import { useGeneros } from '../hooks/useGeneros'
 
 const ESTADO_INICIAL = { titulo: '', descricao: '', desenvolvedora: '', preco: '', capaUrl: '', lancamento: '', generosIds: [] }
@@ -32,14 +32,34 @@ function SeletorGeneros({ generos, carregando, selecionados, onToggle }) {
   )
 }
 
-function useForm() {
-  const [form, setForm] = useState(ESTADO_INICIAL)
+// Converte um jogo (vindo da API) no formato do formulário.
+function jogoParaForm(jogo) {
+  if (!jogo) return ESTADO_INICIAL
+  const dataISO = jogo.lancamento ? new Date(jogo.lancamento) : null
+  const dataInput = dataISO && !Number.isNaN(dataISO.getTime())
+    ? dataISO.toISOString().slice(0, 10)
+    : ''
+  return {
+    titulo: jogo.titulo ?? '',
+    descricao: jogo.descricao ?? '',
+    desenvolvedora: jogo.desenvolvedora ?? '',
+    preco: jogo.preco != null ? String(jogo.preco) : '',
+    capaUrl: jogo.capaUrl ?? '',
+    lancamento: dataInput,
+    generosIds: Array.isArray(jogo.generos)
+      ? jogo.generos.map((g) => g.id ?? g).filter((id) => id != null)
+      : [],
+  }
+}
+
+function useForm(inicial = ESTADO_INICIAL) {
+  const [form, setForm] = useState(inicial)
   const atualizar = (campo, valor) => setForm((f) => ({ ...f, [campo]: valor }))
   const alternarGenero = (id) => setForm((f) => ({
     ...f,
     generosIds: f.generosIds.includes(id) ? f.generosIds.filter((g) => g !== id) : [...f.generosIds, id],
   }))
-  const resetar = () => setForm(ESTADO_INICIAL)
+  const resetar = () => setForm(inicial)
   return { form, atualizar, alternarGenero, resetar }
 }
 
@@ -51,9 +71,12 @@ function validar(form) {
   return null
 }
 
-export default function CriarJogo({ onCriado }) {
+export default function CriarJogo({ onCriado, jogoParaEditar = null, onCancelar }) {
+  const editando = !!jogoParaEditar
   const { generos, carregando: carregandoGeneros } = useGeneros()
-  const { form, atualizar, alternarGenero, resetar } = useForm()
+  const { form, atualizar, alternarGenero, resetar } = useForm(
+    editando ? jogoParaForm(jogoParaEditar) : ESTADO_INICIAL
+  )
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState(null)
   const [sucesso, setSucesso] = useState(false)
@@ -71,14 +94,20 @@ export default function CriarJogo({ onCriado }) {
       preco: Number(form.preco),
       capaUrl: form.capaUrl.trim() || null,
       lancamento: new Date(form.lancamento + 'T00:00:00Z').toISOString(),
-      ...(form.generosIds.length > 0 && { generos: form.generosIds }),
+      generoIds: form.generosIds,
     }
 
     try {
       setEnviando(true)
-      const criado = await criarJogo(payload)
-      setSucesso(true); resetar()
-      onCriado?.(criado)
+      if (editando) {
+        const atualizado = await atualizarJogo(jogoParaEditar.id, payload)
+        setSucesso(true)
+        onCriado?.(atualizado)
+      } else {
+        const criado = await criarJogo(payload)
+        setSucesso(true); resetar()
+        onCriado?.(criado)
+      }
     } catch (err) {
       const dados = err?.response?.data
       const status = err?.response?.status
@@ -91,11 +120,11 @@ export default function CriarJogo({ onCriado }) {
 
   return (
     <div className="max-w-2xl mx-auto px-8 py-10">
-      <span className="block text-xs font-bold tracking-[0.3em] text-roxo-neon mb-1">// PUBLICAR</span>
-      <h1 className="font-display text-3xl font-bold text-texto-primario mb-1">Adicionar jogo</h1>
-      <p className="text-sm text-texto-secundario mb-8">Preencha os dados do seu jogo. Limite de 3 jogos por usuário.</p>
+      <span className="block text-xs font-bold tracking-[0.3em] text-roxo-neon mb-1">{editando ? '// EDITAR' : '// PUBLICAR'}</span>
+      <h1 className="font-display text-3xl font-bold text-texto-primario mb-1">{editando ? 'Editar jogo' : 'Adicionar jogo'}</h1>
+      <p className="text-sm text-texto-secundario mb-8">{editando ? 'Altere os dados do seu jogo e salve.' : 'Preencha os dados do seu jogo. Limite de 3 jogos por usuário.'}</p>
 
-      {sucesso && <Alerta tipo="sucesso">✓ Jogo criado com sucesso!</Alerta>}
+      {sucesso && <Alerta tipo="sucesso">{editando ? '✓ Jogo atualizado com sucesso!' : '✓ Jogo criado com sucesso!'}</Alerta>}
       {erro && <Alerta tipo="erro">{erro}</Alerta>}
 
       <form onSubmit={aoSubmeter} className="flex flex-col gap-5">
@@ -128,10 +157,20 @@ export default function CriarJogo({ onCriado }) {
           <SeletorGeneros generos={generos} carregando={carregandoGeneros} selecionados={form.generosIds} onToggle={alternarGenero} />
         </Campo>
 
-        <button type="submit" disabled={enviando}
-          className="mt-2 self-start px-7 py-3 rounded-lg font-display font-bold uppercase tracking-wider text-sm text-white bg-roxo-neon transition hover:bg-verde-acido hover:text-fundo-primario hover:shadow-[0_0_25px_rgba(159,255,61,0.5)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-          {enviando ? 'Publicando...' : 'Publicar jogo'}
-        </button>
+        <div className="mt-2 flex items-center gap-3">
+          <button type="submit" disabled={enviando}
+            className="px-7 py-3 rounded-lg font-display font-bold uppercase tracking-wider text-sm text-white bg-roxo-neon transition hover:bg-verde-acido hover:text-fundo-primario hover:shadow-[0_0_25px_rgba(159,255,61,0.5)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+            {enviando
+              ? (editando ? 'Salvando...' : 'Publicando...')
+              : (editando ? 'Salvar alterações' : 'Publicar jogo')}
+          </button>
+          {(editando || onCancelar) && (
+            <button type="button" onClick={() => onCancelar?.()}
+              className="px-6 py-3 rounded-lg font-display font-semibold text-sm text-texto-secundario border border-borda hover:border-roxo-neon hover:text-texto-primario transition cursor-pointer">
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
     </div>
   )

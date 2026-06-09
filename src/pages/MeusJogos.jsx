@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { getMeusJogos } from '../services/jogosService'
+import { getMeusJogos, excluirJogo } from '../services/jogosService'
+import { totalReviews } from '../utils/classificarJogos'
 import GameCover from '../components/game/GameCover'
 
 const LIMITE_JOGOS = 3 // a API permite no máximo 3 jogos por usuário
@@ -41,8 +42,9 @@ function Info({ label, valor }) {
   )
 }
 
-function CardJogo({ jogo, onAbrir }) {
+function CardJogo({ jogo, onAbrir, onEditar, onExcluir, excluindo }) {
   const lancamento = formatarData(jogo.lancamento)
+  const parar = (fn) => (e) => { e.stopPropagation(); fn() }
   return (
     <article
       onClick={() => onAbrir?.(jogo.id)}
@@ -63,9 +65,9 @@ function CardJogo({ jogo, onAbrir }) {
             </h3>
             <p className="text-xs text-texto-secundario truncate mt-0.5">{jogo.desenvolvedora}</p>
           </div>
-          {jogo.mediaNotas != null && (
+          {totalReviews(jogo) != null && totalReviews(jogo) > 0 && (
             <span className="shrink-0 px-2 py-0.5 rounded-full bg-fundo-primario border border-verde-acido font-display font-bold text-xs text-verde-acido">
-              ★ {Number(jogo.mediaNotas).toFixed(1)}
+              {totalReviews(jogo)} ★
             </span>
           )}
         </div>
@@ -82,28 +84,71 @@ function CardJogo({ jogo, onAbrir }) {
           <Info label="Preço" valor={<span className="text-verde-acido font-bold">{formatarPreco(jogo.preco)}</span>} />
           {lancamento && <Info label="Lançamento" valor={lancamento} />}
         </div>
+
+        <div className="flex items-center gap-2 pt-2">
+          <button
+            onClick={parar(() => onEditar?.(jogo))}
+            className="px-3 py-1.5 rounded-md text-xs font-semibold border border-borda text-texto-secundario hover:border-roxo-neon hover:text-roxo-neon transition cursor-pointer"
+          >
+            ✏️ Editar
+          </button>
+          <button
+            onClick={parar(() => onExcluir?.(jogo))}
+            disabled={excluindo}
+            className="px-3 py-1.5 rounded-md text-xs font-semibold border border-borda text-texto-secundario hover:border-erro hover:text-erro transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {excluindo ? 'Excluindo...' : '🗑️ Excluir'}
+          </button>
+        </div>
       </div>
     </article>
   )
 }
 
-export default function MeusJogos({ usuario, onAbrirJogo, onPublicar }) {
+export default function MeusJogos({ usuario, onAbrirJogo, onPublicar, onEditarJogo }) {
   const [jogos, setJogos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
+  const [excluindoId, setExcluindoId] = useState(null)
 
   // identidade usada no fallback de filtragem (id ou matrícula do usuário)
   const identidade = usuario?.id ?? usuario?.matricula ?? null
 
   useEffect(() => {
     let cancelado = false
-    setCarregando(true)
-    getMeusJogos(identidade)
-      .then((lista) => { if (!cancelado) { setJogos(lista); setErro(null) } })
-      .catch(() => { if (!cancelado) setErro('Não foi possível carregar seus jogos.') })
-      .finally(() => { if (!cancelado) setCarregando(false) })
+    async function carregar() {
+      setCarregando(true)
+      try {
+        const lista = await getMeusJogos(identidade)
+        if (!cancelado) { setJogos(lista); setErro(null) }
+      } catch {
+        if (!cancelado) setErro('Não foi possível carregar seus jogos.')
+      } finally {
+        if (!cancelado) setCarregando(false)
+      }
+    }
+    carregar()
     return () => { cancelado = true }
   }, [identidade])
+
+  async function handleExcluir(jogo) {
+    const ok = window.confirm(`Excluir "${jogo.titulo}"? Esta ação não pode ser desfeita.`)
+    if (!ok) return
+    setExcluindoId(jogo.id)
+    setErro(null)
+    try {
+      await excluirJogo(jogo.id)
+      setJogos((atual) => atual.filter((j) => j.id !== jogo.id))
+    } catch (err) {
+      const status = err?.response?.status
+      const msg = err?.response?.data?.erro ?? err?.response?.data?.message
+      setErro(msg ?? (status === 401 || status === 403
+        ? 'Você não tem permissão para excluir este jogo (faça login novamente).'
+        : 'Não foi possível excluir o jogo. Tente novamente.'))
+    } finally {
+      setExcluindoId(null)
+    }
+  }
 
   const total = jogos.length
 
@@ -149,7 +194,14 @@ export default function MeusJogos({ usuario, onAbrirJogo, onPublicar }) {
         {!carregando && !erro && total > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {jogos.map((jogo) => (
-              <CardJogo key={jogo.id} jogo={jogo} onAbrir={onAbrirJogo} />
+              <CardJogo
+                key={jogo.id}
+                jogo={jogo}
+                onAbrir={onAbrirJogo}
+                onEditar={onEditarJogo}
+                onExcluir={handleExcluir}
+                excluindo={excluindoId === jogo.id}
+              />
             ))}
           </div>
         )}
