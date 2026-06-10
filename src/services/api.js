@@ -1,28 +1,28 @@
 import axios from 'axios'
 
-// URL base da API. Usa VITE_API_URL do .env; se não houver, cai no
-// servidor local padrão (a Vaporzão API roda em http://localhost:3000).
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-
-const api = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
-})
-
-// Lê o token salvo pelo authService.
-function lerToken() {
-  return localStorage.getItem('vaporzao_token')
+function getToken() {
+  return (
+    localStorage.getItem('token') ||
+    localStorage.getItem('vaporzao_token') ||
+    localStorage.getItem('authToken') ||
+    localStorage.getItem('jwt') ||
+    localStorage.getItem('access_token')
+  )
 }
 
+const api = axios.create({
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    'https://alunos-ads-api-production.up.railway.app',
+})
+
 api.interceptors.request.use((config) => {
-  const token = lerToken()
+  const token = getToken()
+
   if (token) {
-    // A Vaporzão API espera o token no header `token`.
     config.headers.token = token
   }
+
   return config
 })
 

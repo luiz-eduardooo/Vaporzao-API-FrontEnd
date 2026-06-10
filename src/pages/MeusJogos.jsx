@@ -115,22 +115,47 @@ export default function MeusJogos({ usuario, onAbrirJogo, onPublicar, onEditarJo
   const identidade = usuario?.id ?? usuario?.matricula ?? null
 
   useEffect(() => {
-    let cancelado = false
-    async function carregar() {
+  let cancelado = false
+
+  async function carregar() {
+    // espera usuário existir
+    if (!usuario) {
+      setCarregando(false)
+      return
+    }
+
+    try {
       setCarregando(true)
-      try {
-        const lista = await getMeusJogos(identidade)
-        if (!cancelado) { setJogos(lista); setErro(null) }
-      } catch {
-        if (!cancelado) setErro('Não foi possível carregar seus jogos.')
-      } finally {
-        if (!cancelado) setCarregando(false)
+
+      const identidade =
+        usuario?.id ??
+        usuario?.matricula
+
+      const lista = await getMeusJogos(identidade)
+
+      if (!cancelado) {
+        setJogos(lista)
+        setErro(null)
+      }
+    } catch (err) {
+      console.error(err)
+
+      if (!cancelado) {
+        setErro('Não foi possível carregar seus jogos.')
+      }
+    } finally {
+      if (!cancelado) {
+        setCarregando(false)
       }
     }
-    carregar()
-    return () => { cancelado = true }
-  }, [identidade])
+  }
 
+  carregar()
+
+  return () => {
+    cancelado = true
+  }
+}, [usuario])
   async function handleExcluir(jogo) {
     const ok = window.confirm(`Excluir "${jogo.titulo}"? Esta ação não pode ser desfeita.`)
     if (!ok) return
