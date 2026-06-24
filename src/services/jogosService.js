@@ -15,6 +15,35 @@ export async function getJogoPorId(id) {
   return data
 }
 
+export async function getWishlist() {
+  const { data } = await api.get('/wishlist/me')
+  const lista = Array.isArray(data) ? data : data?.itens ?? []
+  return lista.map((item) => ({
+    ...(item.jogo ?? item),
+    adicionadoEm: item.adicionadoEm ?? null,
+  }))
+}
+
+export async function removerDaBiblioteca(jogoId) {
+  const { data } = await api.delete(`/biblioteca/${jogoId}`)
+  return data
+}
+
+export async function adicionarNaBiblioteca(jogoId) {
+  const { data } = await api.post(`/biblioteca/${jogoId}`)
+  return data
+  
+export async function adicionarNaWishlist(jogoId) {
+  const { data } = await api.post(`/wishlist/${jogoId}`)
+  return data
+}
+
+export async function removerDaWishlist(jogoId) {
+  const { data } = await api.delete(`/wishlist/${jogoId}`)
+  return data
+}
+
+
 export async function getJogosDestaques(limit = 5) {
   const { data } = await api.get('/jogos/destaques')
   const list = data?.topAvaliados ?? []
