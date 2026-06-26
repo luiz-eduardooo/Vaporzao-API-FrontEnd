@@ -32,7 +32,7 @@ export async function removerDaBiblioteca(jogoId) {
 export async function adicionarNaBiblioteca(jogoId) {
   const { data } = await api.post(`/biblioteca/${jogoId}`)
   return data
-  
+}
 export async function adicionarNaWishlist(jogoId) {
   const { data } = await api.post(`/wishlist/${jogoId}`)
   return data
@@ -194,5 +194,4 @@ export async function getConquistas(jogoId) {
   } catch {
     return []
   }
-}
 }
